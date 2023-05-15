@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Sellers app</title>
+        
+      </head>
+      <body>
+        <h1>Sellers app</h1>
+    
+        <form>
+          <label for="price">Price:</label>
+          <input type="number" id="price"><br>
+    
+          <label for="product_name">Product Name:</label>
+          <input type="text" id="product_name"><br>
+    
+          <label for="product-category">Category:</label>
+          <select id="product-category">
+            <option value="skincare">Skincare</option>
+            <option value="electronics">Electronics</option>
+            <option value="homedecor">Home Decor</option>
+            <option value="fmcg">FMCG</option>
+          </select><br>
+    
+          <button type="button">Add Product</button>
+        </form>
+    
+        <h2>Product List</h2>
+    
+        <ul id="product-list"></ul>
+    
+        
+        <script src="https://unpkg.com/axios@1.1.2/dist/axios.min.js"> </script>
+        <script>
+          const price = document.querySelector("#price");
+          const name = document.querySelector("#product_name");
+          const cat = document.querySelector("#product-category");
+          const btn = document.querySelector("button");
+          const product_list = document.querySelector("#product-list")
+
+          btn.addEventListener("click", ()=>{
+            const obj ={'price':price.value,'name':name.value,'category': cat.value};
+            
+            axios.post("https://crudcrud.com/api/a3696d1e9c654e4d987872893e48f717/products",obj)
+            .then((response)=>{console.log(response);display()})
+            .catch((error)=> console.log(error) )
+            
+
+          })
+          function display(){
+            product_list.innerHTML='';
+            axios.get("https://crudcrud.com/api/a3696d1e9c654e4d987872893e48f717/products")
+              .then((res)=>{res.data.forEach((x)=>{
+                const products = document.createElement('li');
+                const delbtn = document.createElement('button');
+                const editbtn = document.createElement('button');
+                
+                products.textContent = `${x.price} - ${x.name} - ${x.category}`;
+                delbtn.textContent = 'Delete';
+                editbtn.textContent ='Edit';
+
+                delbtn.addEventListener('click',()=>del(x._id))
+                editbtn.addEventListener('click',()=>edit(x))
+                
+                product_list.appendChild(products);
+                product_list.appendChild(delbtn);
+                product_list.appendChild(editbtn);
+
+
+                })})
+              .catch((err)=>console.log(err))
+          
+          }
+          display();
+
+          function del(x){
+            axios.delete("https://crudcrud.com/api/a3696d1e9c654e4d987872893e48f717/products"+`/${x}`)
+            .then((x)=>display())
+            .catch((x)=>console.log(x))
+            
+          }
+
+          function edit(x){
+            price.value = x.price;
+            name.value = x.name;
+            cat.value = x.category;
+            del(x._id);
+
+          }
+
+        </script>
+          
+      </body>
+    </html>
